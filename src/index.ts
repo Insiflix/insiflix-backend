@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { Request, Response } from 'express';
 require('dotenv').config();
 const express = require('express');
