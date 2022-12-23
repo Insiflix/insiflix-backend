@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
 import { Request, Response } from 'express';
 export {};
 
@@ -19,12 +20,13 @@ login.post('/', (req: Request, res: Response) => {
   } else {
     let user: any = null;
     db.all(
-      'SELECT * FROM Users WHERE user_name=?',
+      'SELECT * FROM Users WHERE user_name = ?',
       [req.body.enteredName],
       (err: Error, rows: any) => {
         if (err !== null) {
           user = null;
-          const err = new Error();
+          console.log(err);
+          err = new Error();
           err.message = 'Invalid login credentials';
           err.name = 'auth-credentials';
           res.status(406).json(err);
@@ -32,13 +34,15 @@ login.post('/', (req: Request, res: Response) => {
           user = rows[0];
           console.log(user);
           if (
+            user !== undefined &&
             bcrypt.compareSync(req.body.enteredPassword, user?.password) ===
-            true
+              true
           ) {
             console.log('valid login');
             const session = crypto.randomUUID();
+            console.log(session);
             db.all(
-              `INSERT INTO Sessions VALUES (${user.user_name}, ${session})`
+              `INSERT INTO Sessions VALUES ("${user.user_name}", "${session}")`
             );
             res
               .cookie('sessionId', session, {

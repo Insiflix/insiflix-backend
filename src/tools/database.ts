@@ -11,7 +11,8 @@ const db: any = new sqlite3.Database(
 );
 
 function sendQuery(query: string): void {
-  db.all(query, (err: Error, rows: any): void => {
+  const user = 'fuchs';
+  db.all(query, [user], (err: Error, rows: any): void => {
     if (err !== null) {
       console.error(err.message);
     }
