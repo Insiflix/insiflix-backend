@@ -5,8 +5,8 @@ const logger = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const app = express();
-const login = require('./routes/login');
-const validate = require('./routes/validate');
+const auth = require('./routes/auth');
+const recommandations = require('./routes/recommandations');
 
 app.use(cors({ origin: '*' }));
 app.use(logger('dev'));
@@ -18,8 +18,8 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Insiflix API');
 });
 
-app.use('/auth/login', login);
-app.use('/auth/validate', validate);
+app.use('/auth', auth);
+app.use('/recommandations', recommandations);
 
 app.listen(process.env.PORT ?? 4000, () => {
   console.log(`express server is running on port ${process.env.PORT ?? 4000}`);

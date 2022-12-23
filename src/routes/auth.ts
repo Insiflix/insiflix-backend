@@ -3,12 +3,13 @@ import { Request, Response } from 'express';
 export {};
 
 const { Router } = require('express');
-const login = Router();
+const auth = Router();
 const crypto = require('crypto');
 const { db } = require('../tools/database');
 const bcrypt = require('bcrypt');
+const { requireAuth } = require('../tools/middlewares');
 
-login.post('/', (req: Request, res: Response) => {
+auth.post('/login', (req: Request, res: Response) => {
   if (
     req.body?.enteredName === undefined ||
     req.body?.enteredPassword === undefined
@@ -63,4 +64,10 @@ login.post('/', (req: Request, res: Response) => {
   }
 });
 
-module.exports = login;
+auth.get('/validate', requireAuth, (req: Request, res: Response) => {
+  res
+    .status(200)
+    .json({ message: 'authorized', username: res.locals.username });
+});
+
+module.exports = auth;
