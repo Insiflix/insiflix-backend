@@ -77,3 +77,5 @@ recommandations.post('/tags', requireAuth, (req: Request, res: Response) => {
     }
   );
 });
+
+module.exports = recommandations;

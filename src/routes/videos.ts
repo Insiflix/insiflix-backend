@@ -47,3 +47,5 @@ videos.get('/watch/:id', requireAuth, (req: Request, res: Response) => {
     }
   );
 });
+
+module.exports = videos;
