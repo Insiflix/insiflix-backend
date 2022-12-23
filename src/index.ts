@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const app = express();
 const auth = require('./routes/auth');
+const videos = require('./routes/videos');
 const recommandations = require('./routes/recommandations');
 
 app.use(cors({ origin: '*' }));
@@ -20,6 +21,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/auth', auth);
 app.use('/recommandations', recommandations);
+app.use('/videos', videos);
 
 app.listen(process.env.PORT ?? 4000, () => {
   console.log(`express server is running on port ${process.env.PORT ?? 4000}`);

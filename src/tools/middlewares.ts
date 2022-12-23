@@ -11,13 +11,13 @@ const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
   } else {
     let user: any;
     db.all(
-      'SELECT Username FROM Sessions WHERE session_id=?',
+      'SELECT user_name FROM Sessions WHERE session_id=?',
       [req.cookies.sessionId],
       (err: Error, res: any) => {
         if (err !== null) {
           user = null;
         } else {
-          user = res[0].user_name;
+          user = res[0];
         }
       }
     );
