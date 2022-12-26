@@ -4,7 +4,9 @@ const express = require('express');
 const logger = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
+const busboy = require('connect-busboy');
 const app = express();
+
 const auth = require('./routes/auth');
 const videos = require('./routes/videos');
 const recommandations = require('./routes/recommandations');
@@ -18,6 +20,11 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(
+  busboy({
+    highWaterMark: 2 * 1024 * 1024
+  })
+);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Insiflix API');
