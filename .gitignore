@@ -54,6 +54,7 @@ typings/
 .eslintcache
 
 *.db
+*.mp4
 
 # Microbundle cache
 .rpt2_cache/

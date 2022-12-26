@@ -25,8 +25,9 @@ videos.get('/watch/:id', requireAuth, (req: Request, res: Response) => {
         err.name = 'invalid-id';
         res.status(416).json(err);
       }
+
       const range = req.headers.range;
-      const videoPath = rows[0];
+      const videoPath = rows[0].path;
       const videoSize = fs.statSync(videoPath).size;
 
       const chunkSize = 1 * 1e6;
