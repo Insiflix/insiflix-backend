@@ -5,6 +5,7 @@ const { db } = require('../tools/database');
 const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
+const exec = require('child_process');
 
 export {};
 
@@ -18,7 +19,17 @@ upload.post('/yt', requireAuth, (req: Request, res: Response) => {
     err.message = 'missing video url';
     res.status(420).json(err);
   }
-  // TODO: get video from youtube, ad to db
+  exec(`./yt-dwnl ${req.body.url}`, (err: Error, stdout: any, stderr: any) => {
+    if (err !== null) {
+      console.log(`error: ${err.message}`);
+      return;
+    }
+    if (stderr !== null) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+  });
 });
 
 upload.post('/file', requireAuth, (req: any, res: Response) => {
