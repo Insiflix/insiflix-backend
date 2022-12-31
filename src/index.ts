@@ -34,7 +34,7 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/auth', auth);
 app.use('/recommandations', recommandations);
 app.use('/videos', videos);
-app.user('/upload', upload);
+app.use('/upload', upload);
 
 app.listen(process.env.PORT ?? 4000, () => {
   console.log(`express server is running on port ${process.env.PORT ?? 4000}`);

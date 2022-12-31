@@ -9,12 +9,13 @@ const recommandations = Router();
 
 recommandations.get('/random', requireAuth, (req: Request, res: Response) => {
   db.all(
-    'SELECT * FROM Videos ORDER BY RAND() LIMIT 10',
-    (err: Error, rows: any) => {
+    'SELECT * FROM Videos ORDER BY RANDOM() LIMIT 10',
+    (err: Error, rows: any[]) => {
       if (err !== null) {
         res.status(411);
       }
       const videos: any = [];
+
       rows.forEach((row: any) => {
         videos.push({
           id: row.id,
@@ -49,18 +50,17 @@ recommandations.get('/recent', requireAuth, (req: Request, res: Response) => {
   );
 });
 
-recommandations.post('/tags', requireAuth, (req: Request, res: Response) => {
-  if (req.body?.tag === undefined) {
+recommandations.get('/tags', requireAuth, (req: Request, res: Response) => {
+  if (req.query?.tag === undefined) {
     const err = new Error();
     err.message = 'Missing tag';
     err.name = 'missing-tag';
     res.status(412).json(err);
   }
-
   db.all(
-    'SELECT * FROM Videos WHERE tags LIKE "%?%" ORDER BY RAND() LIMIT 10',
-    [req.body.tag],
-    (err: Error, rows: any) => {
+    'SELECT * FROM Videos WHERE INSTR(tags, ?) > 0 ORDER BY RANDOM() LIMIT 10',
+    [req.query.tag],
+    (err: Error, rows: any[]) => {
       if (err !== null) {
         res.status(411);
       }
