@@ -5,6 +5,7 @@ const logger = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 const busboy = require('connect-busboy');
+const cookieParser = require('cookie-parser');
 const app = express();
 
 const auth = require('./routes/auth');
@@ -19,6 +20,7 @@ app.use(
     crossOriginResourcePolicy: false
   })
 );
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(

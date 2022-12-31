@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-const { requireAuth } = require('../tools/middlewares');
+const { requireAuthToken } = require('../tools/middlewares');
 const { db } = require('../tools/database');
 const fs = require('fs');
 
@@ -8,7 +8,7 @@ export {};
 const { Router } = require('express');
 const videos = Router();
 
-videos.get('/watch/:id', requireAuth, (req: Request, res: Response) => {
+videos.get('/watch/:id', requireAuthToken, (req: Request, res: Response) => {
   if (req.params?.id === undefined) {
     const err = new Error();
     err.message = 'Missing video id';

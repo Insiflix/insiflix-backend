@@ -51,7 +51,7 @@ auth.post('/login', (req: Request, res: Response) => {
                 httpOnly: true,
                 sameSite: 'none'
               })
-              .json({ message: 'sucess', username: user });
+              .json({ message: 'sucess', username: user, token: session });
           } else {
             const err = new Error();
             err.message = 'Invalid login credentials';
