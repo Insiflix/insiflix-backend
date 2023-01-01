@@ -70,7 +70,7 @@
 
 ## Get videos by tags
 
-**URL:** `/recommandations/recent`
+**URL:** `/recommandations/tags`
 
 **Method:** `GET`
 
