@@ -44,7 +44,7 @@ const requireAuthToken = (
 ): void => {
   if (req.query?.watchToken === undefined) {
     const error = new Error();
-    error.message = 'Missing session';
+    error.message = 'Missing token';
     error.name = 'auth.unauthorized';
     res.status(401).json(error);
   } else {
@@ -55,21 +55,24 @@ const requireAuthToken = (
       (err: Error, rows: any) => {
         if (err !== null) {
           user = null;
+          const error = new Error();
+          error.message = 'Internal error';
+          error.name = 'auth.unauthorized';
+          res.status(505).json(error);
         } else {
           user = rows[0];
+          if (user !== undefined) {
+            res.locals.userName = user;
+            next();
+          } else {
+            const error = new Error();
+            error.message = 'Invalid token';
+            error.name = 'auth.unauthorized';
+            res.status(402).json(error);
+          }
         }
       }
     );
-
-    if (user !== null) {
-      res.locals.userName = user;
-      next();
-    } else {
-      const error = new Error();
-      error.message = 'Invalid token';
-      error.name = 'auth.unauthorized';
-      res.status(402).json(error);
-    }
   }
 };
 
