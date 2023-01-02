@@ -3,6 +3,7 @@ const { db } = require('./database');
 export {};
 
 const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
+  console.log(req.cookies);
   if (req.cookies?.sessionId === undefined) {
     console.log(req.cookies);
     const error = new Error();
@@ -12,26 +13,27 @@ const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
   } else {
     let user: any;
     db.all(
-      'SELECT user_name FROM Sessions WHERE session_id=?',
+      'SELECT user_name FROM Sessions WHERE session_id = ?',
       [req.cookies.sessionId],
-      (err: Error, res: any) => {
+      (err: Error, rows: any) => {
         if (err !== null) {
           user = null;
         } else {
-          user = res[0];
+          console.log(rows);
+          user = rows[0];
+
+          if (user !== undefined) {
+            res.locals.userName = user.user_name;
+            next();
+          } else {
+            const error = new Error();
+            error.message = 'Invalid token';
+            error.name = 'auth.unauthorized';
+            res.status(402).json(error);
+          }
         }
       }
     );
-
-    if (user !== undefined) {
-      res.locals.userName = user;
-      next();
-    } else {
-      const error = new Error();
-      error.message = 'Invalid token';
-      error.name = 'auth.unauthorized';
-      res.status(401).json(error);
-    }
   }
 };
 
@@ -40,7 +42,7 @@ const requireAuthToken = (
   res: Response,
   next: NextFunction
 ): void => {
-  if (req.query?.sessionId === undefined) {
+  if (req.query?.watchToken === undefined) {
     const error = new Error();
     error.message = 'Missing session';
     error.name = 'auth.unauthorized';
@@ -48,8 +50,8 @@ const requireAuthToken = (
   } else {
     let user: any;
     db.all(
-      'SELECT user_name FROM Sessions WHERE session_id = ? ',
-      [req.query.sessionId],
+      'SELECT user_name FROM Sessions WHERE watch_token = ? ',
+      [req.query.watchToken],
       (err: Error, rows: any) => {
         if (err !== null) {
           user = null;

@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 const { requireAuth } = require('../tools/middlewares');
 
 auth.post('/login', (req: Request, res: Response) => {
+  console.log(req.cookies);
   if (
     req.body?.enteredName === undefined ||
     req.body?.enteredPassword === undefined
@@ -41,9 +42,10 @@ auth.post('/login', (req: Request, res: Response) => {
           ) {
             console.log('valid login');
             const session = crypto.randomUUID();
+            const watchToken = crypto.randomUUID();
             console.log(session);
             db.all(
-              `INSERT INTO Sessions VALUES ("${user.user_name}", "${session}")`
+              `INSERT INTO Sessions VALUES ("${user.user_name}", "${session}", "${watchToken}")`
             );
             res
               .cookie('sessionId', session, {
@@ -51,7 +53,7 @@ auth.post('/login', (req: Request, res: Response) => {
                 httpOnly: true,
                 sameSite: 'none'
               })
-              .json({ message: 'sucess', username: user, token: session });
+              .json({ message: 'sucess', username: user, watchToken });
           } else {
             const err = new Error();
             err.message = 'Invalid login credentials';

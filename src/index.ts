@@ -13,7 +13,7 @@ const videos = require('./routes/videos');
 const upload = require('./routes/upload');
 const recommandations = require('./routes/recommandations');
 
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(logger('dev'));
 app.use(
   helmet({
