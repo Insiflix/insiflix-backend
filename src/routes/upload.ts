@@ -6,6 +6,7 @@ const fs = require('fs');
 const crypto = require('crypto');
 const path = require('path');
 const exec = require('child_process');
+const axios = require('axios');
 
 export {};
 
@@ -19,16 +20,43 @@ upload.post('/yt', requireAuth, (req: Request, res: Response) => {
     err.message = 'missing video url';
     res.status(420).json(err);
   }
-  exec(`./yt-dwnl ${req.body.url}`, (err: Error, stdout: any, stderr: any) => {
+  const url: string = req.body.url.toString();
+  const id = url.split('?v=')[1];
+  if (id === null) {
+    const err = new Error();
+    err.name = 'missing-url';
+    err.message = 'missing video url';
+    res.status(420).json(err);
+  }
+  exec(`./yt-dwnl ${url} ${id}`, (err: Error, stdout: any, stderr: any) => {
     if (err !== null) {
-      console.log(`error: ${err.message}`);
+      console.log(err.message);
       return;
     }
     if (stderr !== null) {
-      console.log(`stderr: ${stderr}`);
+      console.log(stderr);
       return;
     }
-    console.log(`stdout: ${stdout}`);
+    console.log(stdout);
+    const thumbnail = `https://i.ytimg.com/vi/${id}`;
+    axios
+      .get('https://www.youtube.com/watch?v=-OvNxmP6O90')
+      .then((res: any) => {
+        const html = res.data.toString();
+        let indice1 = html.indexOf('<meta name="title" content="');
+        let sub = html.substring(indice1 + 28, indice1 + 200);
+        sub = sub.substring(0, sub.indexOf('">'));
+        const title = sub;
+        indice1 = html.indexOf('<link itemprop="name" content="');
+        sub = html.substring(indice1 + 31, indice1 + 200);
+        sub = sub.substring(0, sub.indexOf('">'));
+        const creator = sub;
+        db.all(
+          `INSERT INTO Videos VALUES ("${id}", "${title}", tags, "${creator}", "${new Date().getMilliseconds()}", length, "${
+            process.env.videoPath + id
+          }")`
+        );
+      });
   });
 });
 
