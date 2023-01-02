@@ -3,9 +3,7 @@ const { db } = require('./database');
 export {};
 
 const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
-  console.log(req.cookies);
   if (req.cookies?.sessionId === undefined) {
-    console.log(req.cookies);
     const error = new Error();
     error.message = 'Missing session';
     error.name = 'auth.unauthorized';
@@ -19,7 +17,6 @@ const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
         if (err !== null) {
           user = null;
         } else {
-          console.log(rows);
           user = rows[0];
 
           if (user !== undefined) {

@@ -61,7 +61,6 @@ upload.post('/yt', requireAuth, (req: Request, res: Response) => {
         sub = sub.substring(0, sub.indexOf('",'));
         sub = new Date(parseInt(sub) * 1000).toISOString().slice(11, 19);
         if (sub.split(':')[0] === '00') sub = sub.substring(3, 8);
-        console.log(sub);
         const length = sub;
         db.all(
           `INSERT INTO Videos VALUES (?, "${title}", ?, "${creator}", "${new Date().getMilliseconds()}", "${length}", "${
@@ -81,7 +80,7 @@ upload.post('/file', requireAuth, (req: any, res: Response) => {
   ) {
     const err = new Error();
     err.name = 'missing-params';
-    err.message = 'missing upload parameters';
+    err.message = 'missing upload params';
     res.status(420).json(err);
   }
   req.pipe(req.busboy);

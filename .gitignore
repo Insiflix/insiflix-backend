@@ -55,6 +55,7 @@ typings/
 
 *.db
 *.mp4
+*.png
 
 # Microbundle cache
 .rpt2_cache/

@@ -10,7 +10,6 @@ const bcrypt = require('bcrypt');
 const { requireAuth } = require('../tools/middlewares');
 
 auth.post('/login', (req: Request, res: Response) => {
-  console.log(req.cookies);
   if (
     req.body?.enteredName === undefined ||
     req.body?.enteredPassword === undefined
@@ -34,16 +33,13 @@ auth.post('/login', (req: Request, res: Response) => {
           res.status(406).json(err);
         } else {
           user = rows[0];
-          console.log(user);
           if (
             user !== undefined &&
             bcrypt.compareSync(req.body.enteredPassword, user?.password) ===
               true
           ) {
-            console.log('valid login');
             const session = crypto.randomUUID();
             const watchToken = crypto.randomUUID();
-            console.log(session);
             db.all(
               `INSERT INTO Sessions VALUES ("${user.user_name}", "${session}", "${watchToken}")`
             );

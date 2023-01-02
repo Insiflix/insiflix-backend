@@ -2,7 +2,6 @@
 
 **Base URL:** `https://api.insiflix.com`
 
-
 ## Login with username and password
 
 **URL:** `/auth/login`
@@ -134,3 +133,14 @@
 
 **Code:** `200 OK`
 
+## Get thumbnail image
+
+**URL:** `/img/:id`
+
+**Method:** `GET`
+
+**Credentials required:** `yes`
+
+### Success Response
+
+**Code:** `200 OK`
