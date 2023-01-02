@@ -2,7 +2,6 @@
 
 **Base URL:** `https://api.insiflix.com`
 
-#
 
 ## Login with username and password
 
@@ -21,8 +20,6 @@
 
 **Code:** `200 OK`
 
-#
-
 ## Validate current login
 
 **URL:** `/auth/validate`
@@ -38,8 +35,6 @@
 ### Success Response
 
 **Code:** `200 OK`
-
-#
 
 ## Get random recommandations
 
@@ -57,8 +52,6 @@
 
 **Code:** `200 OK`
 
-#
-
 ## Get most recent videos
 
 **URL:** `/recommandations/recent`
@@ -75,11 +68,9 @@
 
 **Code:** `200 OK`
 
-#
-
 ## Get videos by tags
 
-**URL:** `/recommandations/recent`
+**URL:** `/recommandations/tags`
 
 **Method:** `GET`
 
@@ -93,8 +84,6 @@
 ### Success Response
 
 **Code:** `200 OK`
-
-#
 
 ## Add video via youtube link
 
@@ -112,8 +101,6 @@
 ### Success Response
 
 **Code:** `200 OK`
-
-#
 
 ## Add video via file upload
 
@@ -135,8 +122,6 @@
 
 **Code:** `200 OK`
 
-#
-
 ## Stream video
 
 **URL:** `/videos/watch/:id`
@@ -149,4 +134,3 @@
 
 **Code:** `200 OK`
 
-#
