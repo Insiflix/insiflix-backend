@@ -39,10 +39,15 @@ upload.post('/yt', requireAuth, (req: Request, res: Response) => {
     }
     console.log(stdout);
     const thumbnail = `https://i.ytimg.com/vi/${id}`;
+    let tags = 'youtube';
+    if (req.body.tag !== undefined) {
+      tags.concat(' ', req.query.tag?.toString() ?? '');
+    }
     axios
       .get('https://www.youtube.com/watch?v=-OvNxmP6O90')
       .then((res: any) => {
         const html = res.data.toString();
+        fs.writeFileSync('./test.html', html);
         let indice1 = html.indexOf('<meta name="title" content="');
         let sub = html.substring(indice1 + 28, indice1 + 200);
         sub = sub.substring(0, sub.indexOf('">'));
@@ -51,20 +56,32 @@ upload.post('/yt', requireAuth, (req: Request, res: Response) => {
         sub = html.substring(indice1 + 31, indice1 + 200);
         sub = sub.substring(0, sub.indexOf('">'));
         const creator = sub;
+        indice1 = html.indexOf('"lengthSeconds"');
+        sub = html.substring(indice1 + 17, indice1 + 50);
+        sub = sub.substring(0, sub.indexOf('",'));
+        sub = new Date(parseInt(sub) * 1000).toISOString().slice(11, 19);
+        if (sub.split(':')[0] === '00') sub = sub.substring(3, 8);
+        console.log(sub);
+        const length = sub;
         db.all(
-          `INSERT INTO Videos VALUES ("${id}", "${title}", tags, "${creator}", "${new Date().getMilliseconds()}", length, "${
-            process.env.videoPath + id
-          }")`
+          `INSERT INTO Videos VALUES (?, "${title}", ?, "${creator}", "${new Date().getMilliseconds()}", "${length}", "${
+            process.env.videoPath
+          }/?", ?)`,
+          [id, tags, id, thumbnail]
         );
       });
   });
 });
 
 upload.post('/file', requireAuth, (req: any, res: Response) => {
-  if (req.body.url === undefined) {
+  if (
+    req.files.file === undefined ||
+    req.body.title === undefined ||
+    req.body.creator === undefined
+  ) {
     const err = new Error();
-    err.name = 'missing-url';
-    err.message = 'missing video url';
+    err.name = 'missing-params';
+    err.message = 'missing upload parameters';
     res.status(420).json(err);
   }
   req.pipe(req.busboy);
