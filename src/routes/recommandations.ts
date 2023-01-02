@@ -8,8 +8,13 @@ const { Router } = require('express');
 const recommandations = Router();
 
 recommandations.get('/random', requireAuth, (req: Request, res: Response) => {
+  let amount = '10';
+  if (req.query.amount !== undefined) {
+    amount = req.query.amount.toString();
+  }
   db.all(
-    'SELECT * FROM Videos ORDER BY RANDOM() LIMIT 10',
+    'SELECT * FROM Videos ORDER BY RANDOM() LIMIT ?',
+    [amount],
     (err: Error, rows: any[]) => {
       if (err !== null) {
         res.status(411);
@@ -30,8 +35,13 @@ recommandations.get('/random', requireAuth, (req: Request, res: Response) => {
 });
 
 recommandations.get('/recent', requireAuth, (req: Request, res: Response) => {
+  let amount = '10';
+  if (req.query.amount !== undefined) {
+    amount = req.query.amount.toString();
+  }
   db.all(
-    'SELECT * FROM Videos ORDER BY upload_date DESC LIMIT 10',
+    'SELECT * FROM Videos ORDER BY upload_date DESC LIMIT ?',
+    [amount],
     (err: Error, rows: any) => {
       if (err !== null) {
         res.status(411);
@@ -57,9 +67,14 @@ recommandations.get('/tags', requireAuth, (req: Request, res: Response) => {
     err.name = 'missing-tag';
     res.status(412).json(err);
   }
+  let amount = '10';
+  if (req.query.amount !== undefined) {
+    amount = req.query.amount.toString();
+  }
+
   db.all(
-    'SELECT * FROM Videos WHERE INSTR(tags, ?) > 0 ORDER BY RANDOM() LIMIT 10',
-    [req.query.tag],
+    'SELECT * FROM Videos WHERE INSTR(tags, ?) > 0 ORDER BY RANDOM() LIMIT ?',
+    [req.query.tag, amount],
     (err: Error, rows: any[]) => {
       if (err !== null) {
         res.status(411);
