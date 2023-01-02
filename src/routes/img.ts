@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 import { Request, Response } from 'express';
-const { requireAuth } = require('../tools/middlewares');
+const { requireAuthToken } = require('../tools/middlewares');
 const { db } = require('../tools/database');
 
 export {};
@@ -8,7 +8,7 @@ export {};
 const { Router } = require('express');
 const img = Router();
 
-img.get('/:id', requireAuth, (req: Request, res: Response) => {
+img.get('/:id', requireAuthToken, (req: Request, res: Response) => {
   if (req.params.id === undefined) {
     const err = new Error();
     err.name = 'missing-id';
