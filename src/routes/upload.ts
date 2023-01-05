@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 import { Request, Response } from 'express';
 import { body } from 'express-validator';
+import { FileReference } from 'typescript';
 
 const { requireAuth, validate } = require('../tools/middlewares');
 const { db } = require('../tools/database');
@@ -96,24 +97,42 @@ upload.post(
       return;
     }
 
-    const file: any = {
-      length: 'hh:mm:ss',
-      id: 'asdasd'
-    };
-    let video = req.files.file;
-    video.mv(path.join(__dirname, '../', '../', video.name), (err: Error) => {
-      if (err) {
-        console.log(err);
+    const id = crypto.randomUUID().toString().substring(0, 7);
+    const video = req.files.file;
+    const thumbnail = req.files?.thumbnail;
+    video.mv(
+      path.join(process.env.VIDEO_PATH?.toString(), id + '.mp4'),
+      (err: Error) => {
+        if (err) {
+          console.log(err);
+        }
+        if (thumbnail !== undefined) {
+          thumbnail.mv(
+            path.join(process.env.VIDEO_PATH?.toString(), id + '.png'),
+            (err: Error) => {
+              if (err) {
+                console.log(err);
+              }
+              db.all(
+                `INSERT INTO Videos VALUES ("${id}", ?, ?, ?, "${new Date().getMilliseconds()}", "hh:aa:dd", "${
+                  process.env.VIDEO_PATH?.toString() + id + '.mp4'
+                }", "${process.env.IMG_PATH?.toString() + id + '.png'}")`,
+                [req.body.title, req.body.tags, req.body.creator]
+              );
+              res.status(200);
+            }
+          );
+        } else {
+          db.all(
+            `INSERT INTO Videos VALUES ("${id}", ?, ?, ?, "${new Date().getMilliseconds()}", "hh:aa:dd", "${
+              process.env.VIDEO_PATH?.toString() + id
+            }", "g:/Projekte/insiflix-backend/mekka.png")`,
+            [req.body.title, req.body.tags, req.body.creator]
+          );
+        }
+
+        res.status(200);
       }
-    });
-    res.end;
-    return;
-    db.all(
-      `INSERT INTO Videos VALUES ("${
-        file.id
-      }", ?, ?, ?, "${new Date().getMilliseconds()}", "${file.length}", "${
-        process.env.videoPath + file.id
-      }")`
     );
   }
 );
