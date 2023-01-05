@@ -1,0 +1,5 @@
+#!/bin/bash
+mkdir ./$1
+yt-dlp $2 -o $1
+sudo mv ./$1/* $3
+rm -r ./$1

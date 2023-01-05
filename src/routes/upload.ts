@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 import { Request, Response } from 'express';
 import { body } from 'express-validator';
-import { FileReference } from 'typescript';
 
 const { requireAuth, validate } = require('../tools/middlewares');
 const { db } = require('../tools/database');
@@ -35,48 +34,51 @@ upload.post(
     }
     res.status(200).json({ msg: 'yes' });
     return;
-    exec(`./yt-dwnl ${url} ${id}`, (err: Error, stdout: any, stderr: any) => {
-      if (err !== null) {
-        console.log(err.message);
-        return;
+    exec(
+      `./scripts/get-yt ${id} ${url} ${process.env.NAS_PATH}`,
+      (err: Error, stdout: any, stderr: any) => {
+        if (err !== null) {
+          console.log(err.message);
+          return;
+        }
+        if (stderr !== null) {
+          console.log(stderr);
+          return;
+        }
+        console.log(stdout);
+        const thumbnail = `https://i.ytimg.com/vi/${id}`;
+        let tags = 'youtube';
+        if (req.body.tag !== undefined) {
+          tags.concat(' ', req.query.tag?.toString() ?? '');
+        }
+        axios
+          .get('https://www.youtube.com/watch?v=-OvNxmP6O90')
+          .then((res: any) => {
+            const html = res.data.toString();
+            fs.writeFileSync('./test.html', html);
+            let indice1 = html.indexOf('<meta name="title" content="');
+            let sub = html.substring(indice1 + 28, indice1 + 200);
+            sub = sub.substring(0, sub.indexOf('">'));
+            const title = sub;
+            indice1 = html.indexOf('<link itemprop="name" content="');
+            sub = html.substring(indice1 + 31, indice1 + 200);
+            sub = sub.substring(0, sub.indexOf('">'));
+            const creator = sub;
+            indice1 = html.indexOf('"lengthSeconds"');
+            sub = html.substring(indice1 + 17, indice1 + 50);
+            sub = sub.substring(0, sub.indexOf('",'));
+            sub = new Date(parseInt(sub) * 1000).toISOString().slice(11, 19);
+            if (sub.split(':')[0] === '00') sub = sub.substring(3, 8);
+            const length = sub;
+            db.all(
+              `INSERT INTO Videos VALUES (?, "${title}", ?, "${creator}", "${new Date().getMilliseconds()}", "${length}", "${
+                process.env.videoPath
+              }/?", ?)`,
+              [id, tags, id, thumbnail]
+            );
+          });
       }
-      if (stderr !== null) {
-        console.log(stderr);
-        return;
-      }
-      console.log(stdout);
-      const thumbnail = `https://i.ytimg.com/vi/${id}`;
-      let tags = 'youtube';
-      if (req.body.tag !== undefined) {
-        tags.concat(' ', req.query.tag?.toString() ?? '');
-      }
-      axios
-        .get('https://www.youtube.com/watch?v=-OvNxmP6O90')
-        .then((res: any) => {
-          const html = res.data.toString();
-          fs.writeFileSync('./test.html', html);
-          let indice1 = html.indexOf('<meta name="title" content="');
-          let sub = html.substring(indice1 + 28, indice1 + 200);
-          sub = sub.substring(0, sub.indexOf('">'));
-          const title = sub;
-          indice1 = html.indexOf('<link itemprop="name" content="');
-          sub = html.substring(indice1 + 31, indice1 + 200);
-          sub = sub.substring(0, sub.indexOf('">'));
-          const creator = sub;
-          indice1 = html.indexOf('"lengthSeconds"');
-          sub = html.substring(indice1 + 17, indice1 + 50);
-          sub = sub.substring(0, sub.indexOf('",'));
-          sub = new Date(parseInt(sub) * 1000).toISOString().slice(11, 19);
-          if (sub.split(':')[0] === '00') sub = sub.substring(3, 8);
-          const length = sub;
-          db.all(
-            `INSERT INTO Videos VALUES (?, "${title}", ?, "${creator}", "${new Date().getMilliseconds()}", "${length}", "${
-              process.env.videoPath
-            }/?", ?)`,
-            [id, tags, id, thumbnail]
-          );
-        });
-    });
+    );
   }
 );
 
@@ -119,7 +121,7 @@ upload.post(
                 }", "${process.env.IMG_PATH?.toString() + id + '.png'}")`,
                 [req.body.title, req.body.tags, req.body.creator]
               );
-              res.status(200);
+              res.status(200).json({ msg: 'sucess' });
             }
           );
         } else {
@@ -131,7 +133,7 @@ upload.post(
           );
         }
 
-        res.status(200);
+        res.status(200).json({ msg: 'sucess' });
       }
     );
   }
