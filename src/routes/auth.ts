@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 import { Request, Response } from 'express';
+import { body, validationResult } from 'express-validator';
 export {};
 
 const { Router } = require('express');
@@ -9,16 +10,17 @@ const { db } = require('../tools/database');
 const bcrypt = require('bcrypt');
 const { requireAuth } = require('../tools/middlewares');
 
-auth.post('/login', (req: Request, res: Response) => {
-  if (
-    req.body?.enteredName === undefined ||
-    req.body?.enteredPassword === undefined
-  ) {
-    const err = new Error();
-    err.message = 'Missing login credentials';
-    err.name = 'missing-credentials';
-    res.status(410).json(err);
-  } else {
+auth.post(
+  '/login',
+  body('enteredName').isString().notEmpty(),
+  body('enteredPassword').isString().notEmpty(),
+  (req: Request, res: Response) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    console.log('ahhh');
     let user: any = null;
     db.all(
       'SELECT * FROM Users WHERE user_name = ?',
@@ -60,7 +62,7 @@ auth.post('/login', (req: Request, res: Response) => {
       }
     );
   }
-});
+);
 
 auth.get('/validate', requireAuth, (req: Request, res: Response) => {
   res

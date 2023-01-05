@@ -14,11 +14,14 @@ const { Router } = require('express');
 const upload = Router();
 
 upload.post('/yt', requireAuth, (req: Request, res: Response) => {
+  console.log(req.body);
+
   if (req.body.url === undefined) {
     const err = new Error();
     err.name = 'missing-url';
     err.message = 'missing video url';
     res.status(420).json(err);
+    return;
   }
   const url: string = req.body.url.toString();
   const id = url.split('?v=')[1];
@@ -27,7 +30,10 @@ upload.post('/yt', requireAuth, (req: Request, res: Response) => {
     err.name = 'missing-url';
     err.message = 'missing video url';
     res.status(420).json(err);
+    return;
   }
+  res.status(200).json({ msg: 'yes' });
+  return;
   exec(`./yt-dwnl ${url} ${id}`, (err: Error, stdout: any, stderr: any) => {
     if (err !== null) {
       console.log(err.message);
@@ -73,33 +79,31 @@ upload.post('/yt', requireAuth, (req: Request, res: Response) => {
 });
 
 upload.post('/file', requireAuth, (req: any, res: Response) => {
+  console.log(req.files);
   if (
-    req.files.file === undefined ||
-    req.body.title === undefined ||
-    req.body.creator === undefined
+    req.files?.file === undefined ||
+    req.body?.tags === undefined ||
+    req.body?.creator === undefined
   ) {
     const err = new Error();
     err.name = 'missing-params';
     err.message = 'missing upload params';
     res.status(420).json(err);
+    return;
   }
-  req.pipe(req.busboy);
 
   const file: any = {
     length: 'hh:mm:ss',
-    id: crypto.randomUUID().toString().subString(0, 7)
+    id: 'asdasd'
   };
-  req.busboy.on('file', (fieldname: any, file: any, filename: any) => {
-    const fstream = fs.createWriteStream(
-      path.join(process.env.videoPath, file.id)
-    );
-    file.pipe(fstream);
-
-    fstream.on('close', () => {
-      console.log(`Upload of '${filename}' finished`);
-      res.redirect('back');
-    });
+  let video = req.files.file;
+  video.mv(path.join(__dirname, '../', '../', video.name), (err: Error) => {
+    if (err) {
+      console.log(err);
+    }
   });
+  res.end;
+  return;
   db.all(
     `INSERT INTO Videos VALUES ("${
       file.id
