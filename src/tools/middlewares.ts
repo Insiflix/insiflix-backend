@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { validationResult, query, cookie } from 'express-validator';
 const { db } = require('./database');
 export {};
 
@@ -73,4 +74,12 @@ const requireAuthToken = (
   }
 };
 
-module.exports = { requireAuth, requireAuthToken };
+const validate = (req: Request, res: Response, next: NextFunction): any => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+};
+
+module.exports = { requireAuth, requireAuthToken, validate };

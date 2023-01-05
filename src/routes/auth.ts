@@ -8,19 +8,14 @@ const auth = Router();
 const crypto = require('crypto');
 const { db } = require('../tools/database');
 const bcrypt = require('bcrypt');
-const { requireAuth } = require('../tools/middlewares');
+const { requireAuth, validate } = require('../tools/middlewares');
 
 auth.post(
   '/login',
   body('enteredName').isString().notEmpty(),
   body('enteredPassword').isString().notEmpty(),
+  validate,
   (req: Request, res: Response) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    console.log('ahhh');
     let user: any = null;
     db.all(
       'SELECT * FROM Users WHERE user_name = ?',
