@@ -1,6 +1,5 @@
 #!/bin/bash
-dir=$1
-mkdir ./"$dir"
-yt-dlp $2 -o $1
-sudo mv "$dir"/* $3
-rm -r ./$1
+mkdir ./$2
+yt-dlp $1 -o "./$2/$2.%(ext)s"
+sudo mv $2/* $3
+rm -r ./$2

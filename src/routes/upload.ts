@@ -32,51 +32,50 @@ upload.post(
       res.status(420).json(err);
       return;
     }
-    res.status(200).json({ msg: 'yes' });
-    return;
+    const thumbnail = `https://i.ytimg.com/vi/${id}`;
+    let tags = 'youtube';
+    if (req.body.tag !== undefined) {
+      tags.concat(' ', req.query.tag?.toString() ?? '');
+    }
     exec(
-      `./scripts/get-yt ${id} ${url} ${process.env.NAS_PATH}`,
+      `./scripts/get-yt ${url} ${id} ${process.env.NAS_PATH}`,
       (err: Error, stdout: any, stderr: any) => {
         if (err !== null) {
           console.log(err.message);
+          res.status(400).json({ msg: 'invalid-url' });
           return;
         }
         if (stderr !== null) {
           console.log(stderr);
+          res.status(400).json({ msg: 'invalid-url' });
           return;
         }
         console.log(stdout);
-        const thumbnail = `https://i.ytimg.com/vi/${id}`;
-        let tags = 'youtube';
-        if (req.body.tag !== undefined) {
-          tags.concat(' ', req.query.tag?.toString() ?? '');
-        }
-        axios
-          .get('https://www.youtube.com/watch?v=-OvNxmP6O90')
-          .then((res: any) => {
-            const html = res.data.toString();
-            fs.writeFileSync('./test.html', html);
-            let indice1 = html.indexOf('<meta name="title" content="');
-            let sub = html.substring(indice1 + 28, indice1 + 200);
-            sub = sub.substring(0, sub.indexOf('">'));
-            const title = sub;
-            indice1 = html.indexOf('<link itemprop="name" content="');
-            sub = html.substring(indice1 + 31, indice1 + 200);
-            sub = sub.substring(0, sub.indexOf('">'));
-            const creator = sub;
-            indice1 = html.indexOf('"lengthSeconds"');
-            sub = html.substring(indice1 + 17, indice1 + 50);
-            sub = sub.substring(0, sub.indexOf('",'));
-            sub = new Date(parseInt(sub) * 1000).toISOString().slice(11, 19);
-            if (sub.split(':')[0] === '00') sub = sub.substring(3, 8);
-            const length = sub;
-            db.all(
-              `INSERT INTO Videos VALUES (?, "${title}", ?, "${creator}", "${new Date().getMilliseconds()}", "${length}", "${
-                process.env.videoPath
-              }/?", ?)`,
-              [id, tags, id, thumbnail]
-            );
-          });
+        const path = process.env.NAS_PATH?.toString() + id + 'mp4';
+        axios.get(req.body.url).then((res: any) => {
+          // sussy webscrab video data
+          const html = res.data.toString();
+          let indice1 = html.indexOf('<meta name="title" content="');
+          let sub: string = html.substring(indice1 + 28, indice1 + 200);
+          sub = sub.substring(0, sub.indexOf('">'));
+          const title = sub;
+          indice1 = html.indexOf('<link itemprop="name" content="');
+          sub = html.substring(indice1 + 31, indice1 + 200);
+          sub = sub.substring(0, sub.indexOf('">'));
+          const creator = sub;
+          indice1 = html.indexOf('"lengthSeconds"');
+          sub = html.substring(indice1 + 17, indice1 + 50);
+          sub = sub.substring(0, sub.indexOf('",'));
+          sub = new Date(parseInt(sub) * 1000).toISOString().slice(11, 19);
+          if (sub.split(':')[0] === '00') sub = sub.substring(3, 8);
+          const length = sub;
+          // insert sussy data
+          db.all(
+            `INSERT INTO Videos VALUES (?, "${title}", ?, "${creator}", "${new Date().getMilliseconds()}", "${length}", ?, ?)`,
+            [id, tags, path, thumbnail]
+          );
+          res.status(200).json({ msg: 'yes' });
+        });
       }
     );
   }
