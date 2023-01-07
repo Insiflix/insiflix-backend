@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import { body, param } from 'express-validator';
+import { param } from 'express-validator';
 
 const { requireAuthToken, validate } = require('../tools/middlewares');
 const { db } = require('../tools/database');
 const fs = require('fs');
+const cache = require('memory-cache');
 
 export {};
 
@@ -16,6 +17,10 @@ videos.get(
   param('id').isString().notEmpty(),
   validate,
   (req: Request, res: Response) => {
+    const pathCached = cache.get(req.params.id);
+    if (pathCached !== null) {
+      // TODO after implement of async await db
+    }
     db.all(
       'SELECT path FROM Videos WHERE id = ?',
       [req.params.id],
